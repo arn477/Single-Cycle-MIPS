@@ -12,15 +12,7 @@ END oneBitALU;
 
 ARCHITECTURE structural OF oneBitALU IS
     SIGNAL invertedA, invertedB, sum_ab: STD_LOGIC;
-    SIGNAL or_out, and_out: STD_LOGIC;    
-
-    COMPONENT mux21
-        PORT (
-            s: IN STD_LOGIC;
-            x0, x1: IN STD_LOGIC;
-            y: OUT STD_LOGIC
-        );
-    END COMPONENT;
+    SIGNAL or_out, and_out: STD_LOGIC;
 
     COMPONENT mux41 IS
         PORT (s0, s1, x0, x1, x2, x3: IN STD_LOGIC ;
