@@ -12,9 +12,6 @@ END ALUcontrol;
 
 ARCHITECTURE Behavioural OF ALUcontrol is
     SIGNAL opAndFunc: STD_LOGIC_VECTOR(7 downto 0);
-    SIGNAL op1: STD_LOGIC;
-    SIGNAL op2: STD_LOGIC;
-    SIGNAL op3: STD_LOGIC;
 
 BEGIN 
     process(aluOP, funcCode)
