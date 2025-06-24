@@ -53,6 +53,6 @@ begin
             x3 => less             -- Less than flag
         );
 
-    set <= sum_ab;
+    set <= sum_ab
 
 end structural;

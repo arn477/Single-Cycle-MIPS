@@ -3,20 +3,19 @@ USE ieee.std_logic_1164.all;
 
 --32 bit ALU
 ENTITY ALU IS
-    PORT (
+    PORT MAP(
         a, b: IN STD_LOGIC_VECTOR(31 downto 0);
         ALUOp: IN STD_LOGIC_VECTOR(3 downto 0);
         Result: OUT STD_LOGIC_VECTOR(31 downto 0);
         Zero: OUT STD_LOGIC;
         Overflow: OUT STD_LOGIC;
-        CarryOut: OUT STD_LOGIC
+        CarryOut: OUT STD_LOGIC;
     );
 END ALU;
 
 ARCHITECTURE structural OF ALU IS
-    SIGNAL i_carryOut: STD_LOGIC_VECTOR(31 downto 0);
+    SIGNAL carryOut: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL less: STD_LOGIC_VECTOR(31 downto 0);
-	 SIGNAL i_Result: STD_LOGIC_VECTOR(31 downto 0);
     SIGNAL set: STD_LOGIC;
 
     COMPONENT oneBitALU IS
@@ -39,9 +38,9 @@ begin
             Binvert => ALUOp(2),
             CarryIn => ALUOp(2),
             Operation => ALUOp(1 downto 0),
-            Result => i_Result(0),
+            Result => Result(0),
             Set => open,
-            CarryOut => i_carryOut(0)
+            CarryOut => carryOut(0)
         );
 
     ALU_MSB: oneBitALU
@@ -51,11 +50,11 @@ begin
             less => '0', -- Connect to the previous carryOut for less than operation
             Ainvert => ALUOp(3),
             Binvert => ALUOp(2),
-            CarryIn => i_carryOut(30), -- Connect to the previous carryOut
+            CarryIn => carryOut(30), -- Connect to the previous carryOut
             Operation => ALUOp(1 downto 0),
-            Result => i_Result(31),
+            Result => Result(31),
             Set => set,
-            CarryOut => i_carryOut(31)
+            CarryOut => carryOut(31)
         );
 
     -- Repeat for all other bits (1 to 30)
@@ -67,28 +66,17 @@ begin
                 less => '0', -- Connect to the previous carryOut for less than operation
                 Ainvert => ALUOp(3),
                 Binvert => ALUOp(2),
-                CarryIn => i_carryOut(i - 1), -- Connect to the previous carryOut
+                CarryIn => carryOut(i - 1), -- Connect to the previous carryOut
                 Operation => ALUOp(1 downto 0),
-                Result => i_Result(i),
+                Result => Result(i),
                 Set => open,
-                CarryOut => i_carryOut(i)
+                CarryOut => carryOut(i)
             );
     END GENERATE;
 
-	 -- Drive Result
-    Result <= i_Result;
-	 
-	 -- Set Flags
-    Zero <= NOT(i_Result(31) or i_Result(30) or i_Result(29) or i_Result(28) or
-                i_Result(27) or i_Result(26) or i_Result(25) or i_Result(24) or
-                i_Result(23) or i_Result(22) or i_Result(21) or i_Result(20) or
-                i_Result(19) or i_Result(18) or i_Result(17) or i_Result(16) or
-                i_Result(15) or i_Result(14) or i_Result(13) or i_Result(12) or
-                i_Result(11) or i_Result(10) or i_Result(9)  or i_Result(8)  or
-                i_Result(7)  or i_Result(6)  or i_Result(5)  or i_Result(4)  or
-                i_Result(3)  or i_Result(2)  or i_Result(1)  or i_Result(0));
-                
-    Overflow <= i_carryOut(31) xor i_carryOut(30); -- Example for overflow detection
-    CarryOut <= i_carryOut(31); -- Final carry out from the most significant bit
+    -- Set Flags
+    Zero <= '1' when Result = "00000000000000000000000000000000000" else '0';
+    Overflow <= carryOut(31) xor carryOut(30); -- Example for overflow detection
+    CarryOut <= carryOut(31); -- Final carry out from the most significant bit
 
 END structural;
