@@ -7,10 +7,10 @@ use lpm.lpm_components.all;
 
 -- Instantiates the LPM_ROM module with contents from testInstructionMem.mif
 -- This testbench is not self checking
-ENTITY instructionMem_Tb IS
-END instructionMem_Tb;
+ENTITY tb_lpm_rom IS
+END tb_lpm_rom;
 
-ARCHITECTURE rtl OF instructionMem_Tb IS
+ARCHITECTURE behavioural OF tb_lpm_rom IS
     SIGNAL clk: STD_LOGIC := '0';
     SIGNAL Address: STD_LOGIC_VECTOR(7 downto 0) := "00000000";
     SIGNAL Instruction: STD_LOGIC_VECTOR(31 downto 0);
@@ -61,4 +61,4 @@ begin
         end if;
     end process;
 
-end rtl;
+end behavioural;
