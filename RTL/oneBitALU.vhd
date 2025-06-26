@@ -50,7 +50,8 @@ begin
             x0 => and_out,          -- Addition result
             x1 => or_out,          -- OR result
             x2 => sum_ab,         -- AND result
-            x3 => less             -- Less than flag
+            x3 => less,             -- Less than flag
+            y => Result
         );
 
     set <= sum_ab;

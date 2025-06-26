@@ -1,13 +1,13 @@
-Analysis & Synthesis Status : Successful - Tue Jun 24 07:32:10 2025
+Analysis & Synthesis Status : Successful - Wed Jun 25 21:54:43 2025
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : SingleCycleMIPS
-Top-level Entity Name : dataMem
+Top-level Entity Name : ALUcontrol
 Family : Cyclone IV E
-Total logic elements : 0
-    Total combinational functions : 0
+Total logic elements : 7
+    Total combinational functions : 7
     Dedicated logic registers : 0
 Total registers : 0
-Total pins : 75
+Total pins : 13
 Total virtual pins : 0
 Total memory bits : 0
 Embedded Multiplier 9-bit elements : 0

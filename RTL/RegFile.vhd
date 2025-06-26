@@ -4,7 +4,7 @@ USE ieee.numeric_std.all;
 
 ENTITY RegFile is
     PORT(
-        i_reset, i_clock: IN STD_LOGIC;
+        i_reset, i_clock: IN STD_LOGIC; -- active high asynchronous reset
         ReadReg1, ReadReg2, WriteReg: IN STD_LOGIC_VECTOR(4 downto 0);
         WriteData: IN STD_LOGIC_VECTOR(31 downto 0);
         ReadData1, ReadData2: OUT STD_LOGIC_VECTOR(31 downto 0);
@@ -43,7 +43,7 @@ ARCHITECTURE rtl OF RegFile IS
     END COMPONENT;
 
 BEGIN
-    -- Decoder to select which register to write to
+    -- Decoder to select which register to write to (only one reg will be written to at a time due to the decoder)
     decoder: decoder38
         PORT MAP (
             input => WriteReg(2 downto 0),
@@ -52,7 +52,17 @@ BEGIN
 
     resetBar <= NOT i_reset;
 
-    reg_loop: FOR i IN 0 TO 7 GENERATE
+    zeroReg: nBitRegister
+        GENERIC MAP (n => 32)
+        PORT MAP (
+            i_resetBar => resetBar,
+            i_load => '0', -- this reg should never be written to
+            i_clock => i_clock,
+            i_Value => WriteData,
+            o_Value => regArray(0)
+        );
+
+    reg_loop: FOR i IN 1 TO 7 GENERATE
         reg: nBitRegister
             GENERIC MAP (n => 32)
             PORT MAP (
@@ -64,6 +74,7 @@ BEGIN
             );
     END GENERATE;
 
+    -- controls read reg 1 port
     read_mux1 : nbitmux81
         GENERIC MAP (n => 32)
         PORT MAP (
@@ -81,6 +92,7 @@ BEGIN
             y => ReadData1
         );
 
+    -- controls read reg 2 port
     read_mux2 : nbitmux81
         GENERIC MAP (n => 32)
         PORT MAP (

@@ -6,7 +6,7 @@ ENTITY nbitmux21 IS
     PORT ( s: IN STD_LOGIC ;
         x0, x1: IN STD_LOGIC_VECTOR(n-1 downto 0) ;
         y: OUT STD_LOGIC_VECTOR(n-1 downto 0) ) ;
-END nbitmux21 ;
+END nbitmux21;
 
 ARCHITECTURE structural OF nbitmux21 is
     COMPONENT mux21

@@ -2,7 +2,52 @@
 	"partitions" : [
 		{
 			"name" : "Top",
-			"pins" : []
+			"pins" : [
+				{
+					"name" : "operation[0]",
+					"strict" : false
+				},
+				{
+					"name" : "operation[1]",
+					"strict" : false
+				},
+				{
+					"name" : "operation[2]",
+					"strict" : false
+				},
+				{
+					"name" : "funcCode[0]",
+					"strict" : false
+				},
+				{
+					"name" : "funcCode[1]",
+					"strict" : false
+				},
+				{
+					"name" : "funcCode[2]",
+					"strict" : false
+				},
+				{
+					"name" : "funcCode[3]",
+					"strict" : false
+				},
+				{
+					"name" : "funcCode[5]",
+					"strict" : false
+				},
+				{
+					"name" : "funcCode[4]",
+					"strict" : false
+				},
+				{
+					"name" : "aluOP[1]",
+					"strict" : false
+				},
+				{
+					"name" : "aluOP[0]",
+					"strict" : false
+				}
+			]
 		}
 	]
 }

@@ -19,7 +19,7 @@ END controlLogicUnit;
 
 ARCHITECTURE rtl OF controlLogicUnit IS
 BEGIN 
-    PROCESS(opcode)
+    PROCESS(reset, opcode)
     BEGIN
         CASE opcode IS
             WHEN "000000" => -- R-type
