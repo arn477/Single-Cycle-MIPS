@@ -16,7 +16,7 @@ ENTITY lpm_datapath IS
         Branch: IN STD_LOGIC; -- high when beq
         BranchNotEq: IN STD_LOGIC; -- high when bne
         MemToReg: IN STD_LOGIC; -- loads data from memory to registers
-        ALUControl: IN STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit ALU control
+        ALUControl: IN STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit ALU control
         MemWrite: IN STD_LOGIC; -- enables writing to memory
         ALUSrc: IN STD_LOGIC; -- controls ALU input B
         RegWrite: IN STD_LOGIC; -- enables writing to registers
@@ -59,7 +59,9 @@ ARCHITECTURE rtl OF lpm_datapath IS
             ReadReg1, ReadReg2, WriteReg: IN STD_LOGIC_VECTOR(4 downto 0);
             WriteData: IN STD_LOGIC_VECTOR(31 downto 0);
             ReadData1, ReadData2: OUT STD_LOGIC_VECTOR(31 downto 0);
-            RegWrite: IN STD_LOGIC
+            RegWrite: IN STD_LOGIC;
+            Reg0_out, Reg1_out, Reg2_out, Reg3_out: OUT STD_LOGIC_VECTOR(31 downto 0);
+            Reg4_out, Reg5_out, Reg6_out, Reg7_out: OUT STD_LOGIC_VECTOR(31 downto 0)
         );
     END COMPONENT;
 
@@ -114,11 +116,26 @@ ARCHITECTURE rtl OF lpm_datapath IS
         );
     end component;
 
+    COMPONENT enARdFF_2 IS
+        PORT(
+            i_resetBar	: IN	STD_LOGIC;
+            i_d		: IN	STD_LOGIC;
+            i_enable	: IN	STD_LOGIC;
+            i_clock		: IN	STD_LOGIC;
+            o_q, o_qBar	: OUT	STD_LOGIC);
+    end COMPONENT;
+
     SIGNAL reset_bar: STD_LOGIC;
+    SIGNAL branch_sel, memWriteReg, i_Zero: STD_LOGIC;
     SIGNAL pcIn, pcOut, pc_plus_4: STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL instruction: STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL immediate_val, branch_offset: STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL jump_addr: STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL branch_addr, branch_mux_out: STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL writeReg: STD_LOGIC_VECTOR(4 DOWNTO 0);
+    SIGNAL readData1, readData2, writeData: STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL alu_inB, alu_out: STD_LOGIC_VECTOR(31 DOWNTO 0);
+    SIGNAL memory_out: STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 BEGIN
     reset_bar <= NOT reset;
@@ -129,9 +146,9 @@ BEGIN
         PORT MAP(
             i_resetBar => reset_bar,
             i_load => '1',
-            i_clock => clock,
+            i_clock => clk,
             i_Value => pcIn,
-            o_Value => pc
+            o_Value => pcOut
         );
 
     -- Instruction memory
@@ -145,7 +162,7 @@ BEGIN
             LPM_WIDTH => 32,
             LPM_WIDTHAD => 8,
             LPM_NUMWORDS => 256,
-            LPM_ADDRESS_CONTROL => "REGISTERED",
+            LPM_ADDRESS_CONTROL => "UNREGISTERED",
             LPM_OUTDATA => "UNREGISTERED",
             LPM_FILE => "testInstructionMem.mif"
         )
@@ -160,15 +177,146 @@ BEGIN
     
     -- Next address logic
     branch_offset <= immediate_val(29 DOWNTO 0) & "00";
-    jump_addr <= pc(31 DOWNTO 28) & immediate_val(25 DOWNTO 0) & "00";
+    jump_addr <= pc_plus_4(31 DOWNTO 28) & immediate_val(25 DOWNTO 0) & "00";
 
     -- PC+4 adder
     pcAdd: nBitAdderSubtractor
         GENERIC MAP(n => 32)
         PORT MAP(
-            i_A => pc,
-            i_B => "00000000000000000000000000000100", -- add 4 to pc
-            i_Sub => '0', -- add operation
+            i_Ai => pcOut,
+            i_Bi => "00000000000000000000000000000100", -- add 4 to pc
+            operationFlag => '0', -- add operation
+            o_CarryOut => open,
+            o_overflow => open,
             o_Sum => pc_plus_4
         );
-        
+
+    -- Adder for branch address
+    branchAdd: nBitAdderSubtractor
+        GENERIC MAP(n => 32)
+        PORT MAP(
+            i_Ai => pc_plus_4,
+            i_Bi => branch_offset,
+            operationFlag => '0', -- add operation
+            o_CarryOut => open,
+            o_overflow => open,
+            o_Sum => branch_addr
+        );
+    
+    -- branch mux
+    branch_sel <= (Branch AND i_Zero) OR (BranchNotEq AND NOT i_Zero);
+
+    branchMux: nbitmux21
+        GENERIC MAP(n => 32)
+        PORT MAP(
+            s => branch_sel,
+            x0 => pc_plus_4,
+            x1 => branch_addr,
+            y => branch_mux_out
+        );
+    
+    -- Jump Mux
+    jumpMux: nbitmux21
+        GENERIC MAP(n => 32)
+        PORT MAP(
+            s => Jump,
+            x0 => branch_mux_out,
+            x1 => jump_addr,
+            y => pcIn
+        );
+    
+    -- Register file
+    writeReg_mux: nbitmux21
+        GENERIC MAP(n => 5)
+        PORT MAP(
+            s => RegDst,
+            x0 => instruction(20 DOWNTO 16),
+            x1 => instruction(15 DOWNTO 11),
+            y => writeReg
+        );
+    
+    writeData_mux: nbitmux21
+        GENERIC MAP(n => 32)
+        PORT MAP(
+            s => MemToReg,
+            x0 => alu_out,
+            x1 => memory_out,
+            y => writeData
+        );
+
+    reg_file: RegFile
+        PORT MAP(
+            i_reset => reset,
+            i_clock => clk,
+            ReadReg1 => instruction(25 DOWNTO 21),
+            ReadReg2 => instruction(20 DOWNTO 16),
+            WriteReg => writeReg,
+            WriteData => writeData,
+            RegWrite => RegWrite,
+            ReadData1 => readData1,
+            ReadData2 => readData2,
+            Reg0_out => open,
+            Reg1_out => open,
+            Reg2_out => open,
+            Reg3_out => open,
+            Reg4_out => open,
+            Reg5_out => open,
+            Reg6_out => open,
+            Reg7_out => open
+        );
+
+    -- ALU
+    Zero <= i_Zero;
+
+    alu_inB_mux: nbitmux21
+        GENERIC MAP(n => 32)
+        PORT MAP(
+            s => ALUSrc,
+            x0 => readData2,
+            x1 => immediate_val,
+            y => alu_inB
+        );
+
+    mips_alu: ALU
+        PORT MAP(
+            a => readData1,
+            b => alu_inB,
+            ALUOp => ALUControl,
+            Result => alu_out,
+            Zero => i_Zero,
+            Overflow => open,
+            CarryOut => open
+        );
+
+    -- Data memory
+    -- configure RAM so that it stores 256 32 bit words
+    -- Write is synchronous, but reading is async
+    memWrite_reg: enardff_2
+        PORT MAP(
+            i_resetBar => reset_bar,
+            i_d => MemWrite,
+            i_enable => '1',
+            i_clock => clk,
+            o_q => MemWriteReg, 
+            o_qBar => open
+        );
+
+    dataMem: LPM_RAM_DQ
+        generic map (
+            LPM_WIDTH => 32,
+            LPM_WIDTHAD => 8,
+            LPM_NUMWORDS => 256,
+            LPM_INDATA => "REGISTERED",
+            LPM_ADDRESS_CONTROL => "UNREGISTERED",
+            LPM_OUTDATA => "UNREGISTERED",
+            LPM_FILE => "dataMem.mif" -- file path is machine dependent
+            -- must have complete file path to mif file for modelsim
+        )
+        port map (
+            DATA => readData2,
+            ADDRESS => alu_out(7 DOWNTO 0),
+            INCLOCK => clk,
+            WE => MemWriteReg,
+            Q => memory_out
+        );
+end rtl;

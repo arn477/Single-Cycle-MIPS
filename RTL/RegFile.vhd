@@ -8,7 +8,9 @@ ENTITY RegFile is
         ReadReg1, ReadReg2, WriteReg: IN STD_LOGIC_VECTOR(4 downto 0);
         WriteData: IN STD_LOGIC_VECTOR(31 downto 0);
         ReadData1, ReadData2: OUT STD_LOGIC_VECTOR(31 downto 0);
-        RegWrite: IN STD_LOGIC
+        RegWrite: IN STD_LOGIC;
+        Reg0_out, Reg1_out, Reg2_out, Reg3_out: OUT STD_LOGIC_VECTOR(31 downto 0);
+        Reg4_out, Reg5_out, Reg6_out, Reg7_out: OUT STD_LOGIC_VECTOR(31 downto 0)
     );
 END RegFile;
 
@@ -109,4 +111,14 @@ BEGIN
             x7 => regArray(7),
             y => ReadData2
         );
+
+    Reg0_out <= regArray(0);
+    Reg1_out <= regArray(1);
+    Reg2_out <= regArray(2);
+    Reg3_out <= regArray(3);
+    Reg4_out <= regArray(4);
+    Reg5_out <= regArray(5);
+    Reg6_out <= regArray(6);
+    Reg7_out <= regArray(7);
+
 end rtl;
