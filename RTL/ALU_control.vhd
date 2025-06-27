@@ -3,7 +3,6 @@ USE ieee.std_logic_1164.ALL;
 
 ENTITY ALU_control is
     PORT(
-        clk, reset: IN STD_LOGIC;
         aluOP: IN STD_LOGIC_VECTOR(1 downto 0); -- 2 bit alu op
         funcCode: IN STD_LOGIC_VECTOR(5 downto 0); -- 6 bit function code
         operation: OUT STD_LOGIC_VECTOR(2 downto 0) -- ALU control output

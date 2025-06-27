@@ -42,7 +42,6 @@ architecture rtl of lpm_top is
 
     COMPONENT control IS
         PORT(
-            clk, reset : IN STD_LOGIC; -- active high reset
             Zero: IN STD_LOGIC; -- zero flag, mainly helps with branching
             OpCode: IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- 6-bit opcode
             FuncCode: IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- function code for r-type
@@ -83,8 +82,6 @@ BEGIN
             OpCode => OpCode,
             FuncCode => FuncCode,
             Zero => Zero,
-            clk => clk,
-            reset => reset,
             RegDst => RegDst,
             Jump => Jump,
             Branch => Branch,

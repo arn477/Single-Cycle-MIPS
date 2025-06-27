@@ -16,8 +16,8 @@ END RegFile;
 
 ARCHITECTURE rtl OF RegFile IS
     type regFileType is array (0 to 7) of STD_LOGIC_VECTOR(31 downto 0);
-	 SIGNAL regArray: regFileType;
-    SIGNAL reg_enables: STD_LOGIC_VECTOR(7 downto 0);  
+    SIGNAL regArray: regFileType;
+    SIGNAL reg_enables, reg_loads: STD_LOGIC_VECTOR(7 downto 0);  
     SIGNAL resetBar: STD_LOGIC;  
 
     COMPONENT decoder38 IS
@@ -45,6 +45,8 @@ ARCHITECTURE rtl OF RegFile IS
     END COMPONENT;
 
 BEGIN
+    resetBar <= NOT i_reset;
+
     -- Decoder to select which register to write to (only one reg will be written to at a time due to the decoder)
     decoder: decoder38
         PORT MAP (
@@ -52,7 +54,7 @@ BEGIN
             output => reg_enables
         );
 
-    resetBar <= NOT i_reset;
+    reg_loads <= reg_enables AND (regWrite & regWrite & regWrite & regWrite & regWrite & regWrite & regWrite & regWrite);
 
     zeroReg: nBitRegister
         GENERIC MAP (n => 32)
@@ -69,7 +71,7 @@ BEGIN
             GENERIC MAP (n => 32)
             PORT MAP (
                 i_resetBar => resetBar,
-                i_load => reg_enables(i) AND RegWrite,
+                i_load => reg_loads(i),
                 i_clock => i_clock,
                 i_Value => WriteData,
                 o_Value => regArray(i)

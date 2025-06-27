@@ -164,7 +164,7 @@ BEGIN
             LPM_NUMWORDS => 256,
             LPM_ADDRESS_CONTROL => "UNREGISTERED",
             LPM_OUTDATA => "UNREGISTERED",
-            LPM_FILE => "testInstructionMem.mif"
+            LPM_FILE => "C:\Users\Arnav\Desktop\Single-Cycle-MIPS\Project\testInstructionMem.mif"
         )
         port map (
             ADDRESS => pcOut(7 DOWNTO 0),
@@ -309,7 +309,7 @@ BEGIN
             LPM_INDATA => "REGISTERED",
             LPM_ADDRESS_CONTROL => "UNREGISTERED",
             LPM_OUTDATA => "UNREGISTERED",
-            LPM_FILE => "dataMem.mif" -- file path is machine dependent
+            LPM_FILE => "C:\Users\Arnav\Desktop\Single-Cycle-MIPS\Project\dataMem.mif" -- file path is machine dependent
             -- must have complete file path to mif file for modelsim
         )
         port map (
