@@ -1,48 +1,34 @@
-LIBRARY ieee;
+library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-ENTITY instructionMem IS
-    PORT(
-        clk: IN STD_LOGIC;
-        i_address: IN STD_LOGIC_VECTOR(7 downto 0);
-        o_instruction: OUT STD_LOGIC_VECTOR(31 downto 0)
+entity instruction_memory is
+    port (
+        address   : in  std_logic_vector(7 downto 0);  -- 8-bit address (word-indexed)
+        instr_out : out std_logic_vector(31 downto 0)
     );
-END instructionMem;
+end entity;
 
-ARCHITECTURE rtl OF instructionMem IS
-    component LPM_ROM
-        generic (LPM_WIDTH : natural;    -- MUST be greater than 0
-                LPM_WIDTHAD : natural;    -- MUST be greater than 0
-                LPM_NUMWORDS : natural := 0;
-                LPM_ADDRESS_CONTROL : string := "REGISTERED";
-                LPM_OUTDATA : string := "REGISTERED";
-                LPM_FILE : string;
-                LPM_TYPE : string := "L_ROM";
-                INTENDED_DEVICE_FAMILY  : string := "UNUSED";
-                LPM_HINT : string := "UNUSED");
+architecture rtl of instruction_memory is
+    type rom_array is array (0 to 255) of std_logic_vector(31 downto 0);
+    
+    signal rom : rom_array := (
+        -- Preloaded Instructions (word-aligned)
+        0  => x"8C020000", -- lw $2, 0($0)
+        1  => x"8C030001", -- lw $3, 1($0)
+        2  => x"00620822", -- sub $1, $3, $2
+        3  => x"00232025", -- or $4, $1, $3
+        4  => x"AC040003", -- sw $4, 3($0)
+        5  => x"00430820", -- add $1, $2, $3
+        6  => x"AC010004", -- sw $1, 4($0)
+        7  => x"8C020003", -- lw $2, 3($0)
+        8  => x"8C030004", -- lw $3, 4($0)
+        9  => x"0800000B", -- j 0x2C (word 11)
+        10 => x"1021FFF5", -- beq $1, $1, -48 (branch back)
+        11 => x"1022FFFE", -- beq $1, $2, -8
 
-        port (ADDRESS : in STD_LOGIC_VECTOR(LPM_WIDTHAD-1 downto 0);
-            INCLOCK : in STD_LOGIC := '0';
-            OUTCLOCK : in STD_LOGIC := '0';
-            MEMENAB : in STD_LOGIC := '1';
-            Q : out STD_LOGIC_VECTOR(LPM_WIDTH-1 downto 0)
-        );
-    end component;
+        others => (others => '0')  -- unused locations default to zero
+    );
 begin
-    -- configure ROM so that it stores 256 32 bit instructions
-    -- To make single cycle work the input and output must not be registered
-    mem: LPM_ROM
-        generic map (
-            LPM_WIDTH => 32,
-            LPM_WIDTHAD => 8,
-            LPM_NUMWORDS => 256,
-            LPM_ADDRESS_CONTROL => "REGISTERED",
-            LPM_OUTDATA => "UNREGISTERED",
-            LPM_FILE => "testInstructionMem.mif"
-        )
-        port map (
-            ADDRESS => i_address,
-			INCLOCK => clk,
-            Q => o_instruction
-        );
-end rtl;
+    instr_out <= rom(to_integer(unsigned(address)));
+end architecture;

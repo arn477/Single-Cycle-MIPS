@@ -3,7 +3,6 @@ USE ieee.std_logic_1164.ALL;
 
 ENTITY control IS
     PORT(
-        Zero: IN STD_LOGIC; -- zero flag, mainly helps with branching
         OpCode: IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- 6-bit opcode
         FuncCode: IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- function code for r-type
         RegDst: OUT STD_LOGIC; --Controls register that is written to 

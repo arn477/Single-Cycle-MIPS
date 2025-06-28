@@ -20,7 +20,6 @@ architecture rtl of lpm_top is
     SIGNAL RegWrite: STD_LOGIC;
     SIGNAL OpCode: STD_LOGIC_VECTOR(5 DOWNTO 0); 
     SIGNAL FuncCode: STD_LOGIC_VECTOR(5 DOWNTO 0);
-    SIGNAL Zero: STD_LOGIC;
 
     COMPONENT lpm_datapath IS
         PORT(
@@ -35,14 +34,12 @@ architecture rtl of lpm_top is
             ALUSrc: IN STD_LOGIC; -- controls ALU input B
             RegWrite: IN STD_LOGIC; -- enables writing to registers
             OpCode: Out STD_LOGIC_VECTOR(5 DOWNTO 0); -- 6-bit opcode
-            FuncCode: OUT STD_LOGIC_VECTOR(5 DOWNTO 0); -- function code for r-type
-            Zero: OUT STD_LOGIC -- zero flag, mainly helps with branching
+            FuncCode: OUT STD_LOGIC_VECTOR(5 DOWNTO 0) -- function code for r-type
         );
     END COMPONENT;
 
     COMPONENT control IS
         PORT(
-            Zero: IN STD_LOGIC; -- zero flag, mainly helps with branching
             OpCode: IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- 6-bit opcode
             FuncCode: IN STD_LOGIC_VECTOR(5 DOWNTO 0); -- function code for r-type
             RegDst: OUT STD_LOGIC; --Controls register that is written to 
@@ -73,15 +70,13 @@ BEGIN
             ALUSrc => ALUSrc,
             RegWrite => RegWrite,
             OpCode => OpCode,
-            FuncCode => FuncCode,
-            Zero => Zero
+            FuncCode => FuncCode
         );
 
     control_unit: control
         PORT MAP(
             OpCode => OpCode,
             FuncCode => FuncCode,
-            Zero => Zero,
             RegDst => RegDst,
             Jump => Jump,
             Branch => Branch,

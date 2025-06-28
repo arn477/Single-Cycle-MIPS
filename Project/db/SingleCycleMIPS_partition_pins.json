@@ -4,47 +4,151 @@
 			"name" : "Top",
 			"pins" : [
 				{
-					"name" : "operation[0]",
+					"name" : "registerOut[0]",
 					"strict" : false
 				},
 				{
-					"name" : "operation[1]",
+					"name" : "registerOut[1]",
 					"strict" : false
 				},
 				{
-					"name" : "operation[2]",
+					"name" : "registerOut[2]",
 					"strict" : false
 				},
 				{
-					"name" : "funcCode[0]",
+					"name" : "registerOut[3]",
 					"strict" : false
 				},
 				{
-					"name" : "funcCode[1]",
+					"name" : "registerOut[4]",
 					"strict" : false
 				},
 				{
-					"name" : "funcCode[2]",
+					"name" : "registerOut[5]",
 					"strict" : false
 				},
 				{
-					"name" : "funcCode[3]",
+					"name" : "registerOut[6]",
 					"strict" : false
 				},
 				{
-					"name" : "funcCode[5]",
+					"name" : "registerOut[7]",
 					"strict" : false
 				},
 				{
-					"name" : "funcCode[4]",
+					"name" : "registerOut[8]",
 					"strict" : false
 				},
 				{
-					"name" : "aluOP[1]",
+					"name" : "registerOut[9]",
 					"strict" : false
 				},
 				{
-					"name" : "aluOP[0]",
+					"name" : "registerOut[10]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[11]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[12]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[13]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[14]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[15]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[16]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[17]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[18]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[19]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[20]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[21]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[22]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[23]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[24]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[25]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[26]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[27]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[28]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[29]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[30]",
+					"strict" : false
+				},
+				{
+					"name" : "registerOut[31]",
+					"strict" : false
+				},
+				{
+					"name" : "regSelect[0]",
+					"strict" : false
+				},
+				{
+					"name" : "regSelect[1]",
+					"strict" : false
+				},
+				{
+					"name" : "regSelect[2]",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
 					"strict" : false
 				}
 			]

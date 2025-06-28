@@ -10,32 +10,10 @@ ENTITY ALU_control is
 END ALU_control;
 
 ARCHITECTURE rtl OF ALU_control is
-    SIGNAL opAndFunc: STD_LOGIC_VECTOR(7 downto 0);
-
 BEGIN 
-    opAndFunc  <= aluOP & funcCode; 
-
-    process(aluOP, funcCode)
-    begin
-        --funcCode is taken from the hex value from the MIPS reference sheet
-        case opAndFunc is
-            when "00100000" => 
-                operation <= "010"; --add
-            when "10100000" => 
-                operation <= "010";
-            when "01100010" => 
-                operation <= "110"; --sub
-            when "10100010" => 
-                operation <= "110";
-            when "10100100" => 
-                operation <= "000"; --and
-            when "10100101" => 
-                operation <= "001"; --or
-            when "10101010" => 
-                operation <= "111"; --stl 
-            when others => 
-                operation <= "000"; --default is and if anything
-        end case;
-    end process;
+    -- logic circuit shown in lecture 4
+    operation(2) <= aluOP(0) OR (aluOP(1) AND funcCode(1));
+    operation(1) <= (NOT aluOP(1)) OR (NOT funcCode(2));
+    operation(0) <= aluOP(1) AND (funcCode(3) OR funcCode(0));
 
 end rtl;

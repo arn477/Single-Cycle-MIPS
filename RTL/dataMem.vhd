@@ -1,52 +1,37 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity dataMem is
     port (
-        clk: in std_logic;
-        i_address: in std_logic_vector(7 downto 0);
-        i_writeData: in std_logic_vector(31 downto 0);
-        i_writeEnable, i_readEnable: in std_logic;
-        o_readData: out std_logic_vector(31 downto 0)
+        clk        : in  std_logic;
+        write_en   : in  std_logic;
+        address    : in  std_logic_vector(7 downto 0);
+        write_data : in  std_logic_vector(31 downto 0);
+        read_data  : out std_logic_vector(31 downto 0)
     );
-end dataMem;
+end entity;
 
 architecture rtl of dataMem is
-    component LPM_RAM_DQ
-        generic (LPM_WIDTH : natural;    -- MUST be greater than 0
-                LPM_WIDTHAD : natural;    -- MUST be greater than 0
-                LPM_NUMWORDS : natural := 0;
-                LPM_INDATA : string := "REGISTERED";
-                LPM_ADDRESS_CONTROL: string := "REGISTERED";
-                LPM_OUTDATA : string := "REGISTERED";
-                LPM_FILE : string := "UNUSED";
-                LPM_TYPE : string := "L_RAM_DQ";
-                USE_EAB  : string := "ON";
-                INTENDED_DEVICE_FAMILY  : string := "UNUSED";
-                LPM_HINT : string := "UNUSED"
-        );
-        port (DATA : in std_logic_vector(LPM_WIDTH-1 downto 0);
-            ADDRESS : in std_logic_vector(LPM_WIDTHAD-1 downto 0);
-            INCLOCK : in std_logic := '0';
-            OUTCLOCK : in std_logic := '0';
-            WE : in std_logic
-        );
-    end component;
-Begin
-    dataMem: LPM_RAM_DQ
-        generic map (
-            LPM_WIDTH => 32,
-            LPM_WIDTHAD => 8,
-            LPM_NUMWORDS => 256,
-            LPM_INDATA => "REGISTERED",
-            LPM_ADDRESS_CONTROL => "REGISTERED",
-            LPM_OUTDATA => "UNREGISTERED",
-            LPM_FILE => "testDataMem.mif"
-        )
-        port map (
-            DATA => i_writeData,
-            ADDRESS => i_address,
-            INCLOCK => clk,
-            WE => i_writeEnable
-        );
-end rtl;
+    type memory_array is array (0 to 255) of std_logic_vector(31 downto 0);
+    signal mem : memory_array := (
+        0 => x"00000055",
+        1 => x"000000AA",
+        others => (others => '0')
+    );
+begin
+
+    -- similar to a decoder enabling the registers
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if write_en = '1' then
+                mem(to_integer(unsigned(address))) <= write_data;
+            end if;
+        end if;
+    end process;
+
+    -- similar to a very large multiplexer choosing the outputs
+    read_data <= mem(to_integer(unsigned(address)));
+
+end architecture;

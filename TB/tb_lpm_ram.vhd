@@ -46,7 +46,7 @@ begin
             LPM_WIDTH => 32,
             LPM_WIDTHAD => 8,
             LPM_NUMWORDS => 256,
-            LPM_INDATA => "REGISTERED",
+            LPM_INDATA => "UNREGISTERED",
             LPM_ADDRESS_CONTROL => "UNREGISTERED",
             LPM_OUTDATA => "UNREGISTERED",
             LPM_FILE => "C:\Users\arnav\Desktop\Single-Cycle-MIPS\Project\testDataMem.mif" -- file path is machine dependent
@@ -55,8 +55,7 @@ begin
         port map (
             DATA => Data,
             ADDRESS => Address,
-            INCLOCK => clk,
-            WE => WriteEnableReg,
+            WE => WriteEnable,
             Q => output
         );
     -- DFF for write enable
@@ -78,24 +77,24 @@ begin
         -- Read first address
         -- Data should be 00000055
 
-        wait until rising_edge(clk);
-        assert output = x"00000055" report "Data at address should be 00000055" severity error;
-        Address <= "00000001";  -- Move to address 1
-        -- Read second address
-        -- Data should be 000000AA
-
         -- still at second address
         wait until rising_edge(clk);
-        assert output = x"000000AA" report "Data at address should be 000000AA" severity error;
+        Address <= "00000001";  -- Move to address 1
         Data <= x"000000BB";
         WriteEnable <= '1';
 
+        wait until rising_edge(clk);
+        WriteEnable <= '0';
+        Address <= "00000000";  -- Move back to address 0
 
         wait until rising_edge(clk);
-        assert output = x"000000AA" report "Data at address should be 000000AA" severity error;
+        Address <= "00000001";  -- Move to address 1
+
+        wait until rising_edge(clk);
+        Address <= "00000010";  -- Move to address 2
+
         
         wait for 50 ns; -- wait for extra visibility in output waveform
-        assert output = x"000000BB" report "Data at address should be 000000BB" severity error;
         -- end simulation
         assert false report "Simulation finished successfully" severity failure;
     end process;

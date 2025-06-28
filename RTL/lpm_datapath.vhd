@@ -21,8 +21,7 @@ ENTITY lpm_datapath IS
         ALUSrc: IN STD_LOGIC; -- controls ALU input B
         RegWrite: IN STD_LOGIC; -- enables writing to registers
         OpCode: Out STD_LOGIC_VECTOR(5 DOWNTO 0); -- 6-bit opcode
-        FuncCode: OUT STD_LOGIC_VECTOR(5 DOWNTO 0); -- function code for r-type
-        Zero: OUT STD_LOGIC -- zero flag, mainly helps with branching
+        FuncCode: OUT STD_LOGIC_VECTOR(5 DOWNTO 0) -- function code for r-type
     );
 END lpm_datapath;
 
@@ -126,7 +125,8 @@ ARCHITECTURE rtl OF lpm_datapath IS
     end COMPONENT;
 
     SIGNAL reset_bar: STD_LOGIC;
-    SIGNAL branch_sel, memWriteReg, i_Zero: STD_LOGIC;
+    SIGNAL Zero: STD_LOGIC; -- zero flag, mainly helps with branching
+    SIGNAL branch_sel: STD_LOGIC;
     SIGNAL pcIn, pcOut, pc_plus_4: STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL instruction: STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL immediate_val, branch_offset: STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -164,7 +164,8 @@ BEGIN
             LPM_NUMWORDS => 256,
             LPM_ADDRESS_CONTROL => "UNREGISTERED",
             LPM_OUTDATA => "UNREGISTERED",
-            LPM_FILE => "C:\Users\Arnav\Desktop\Single-Cycle-MIPS\Project\testInstructionMem.mif"
+            --LPM_FILE => "C:\Users\Arnav\Desktop\Single-Cycle-MIPS\Project\testInstructionMem.mif"
+            LPM_FILE => "C:\Users\Arnav\Desktop\Single-Cycle-MIPS\Project\instructionMem.mif"
         )
         port map (
             ADDRESS => pcOut(7 DOWNTO 0),
@@ -204,7 +205,7 @@ BEGIN
         );
     
     -- branch mux
-    branch_sel <= (Branch AND i_Zero) OR (BranchNotEq AND NOT i_Zero);
+    branch_sel <= (Branch AND Zero) OR (BranchNotEq AND NOT Zero);
 
     branchMux: nbitmux21
         GENERIC MAP(n => 32)
@@ -266,8 +267,6 @@ BEGIN
         );
 
     -- ALU
-    Zero <= i_Zero;
-
     alu_inB_mux: nbitmux21
         GENERIC MAP(n => 32)
         PORT MAP(
@@ -283,30 +282,19 @@ BEGIN
             b => alu_inB,
             ALUOp => ALUControl,
             Result => alu_out,
-            Zero => i_Zero,
+            Zero => Zero,
             Overflow => open,
             CarryOut => open
         );
 
     -- Data memory
     -- configure RAM so that it stores 256 32 bit words
-    -- Write is synchronous, but reading is async
-    memWrite_reg: enardff_2
-        PORT MAP(
-            i_resetBar => reset_bar,
-            i_d => MemWrite,
-            i_enable => '1',
-            i_clock => clk,
-            o_q => MemWriteReg, 
-            o_qBar => open
-        );
-
     dataMem: LPM_RAM_DQ
         generic map (
             LPM_WIDTH => 32,
             LPM_WIDTHAD => 8,
             LPM_NUMWORDS => 256,
-            LPM_INDATA => "REGISTERED",
+            LPM_INDATA => "UNREGISTERED",
             LPM_ADDRESS_CONTROL => "UNREGISTERED",
             LPM_OUTDATA => "UNREGISTERED",
             LPM_FILE => "C:\Users\Arnav\Desktop\Single-Cycle-MIPS\Project\dataMem.mif" -- file path is machine dependent
@@ -315,8 +303,7 @@ BEGIN
         port map (
             DATA => readData2,
             ADDRESS => alu_out(7 DOWNTO 0),
-            INCLOCK => clk,
-            WE => MemWriteReg,
+            WE => MemWrite,
             Q => memory_out
         );
 end rtl;
